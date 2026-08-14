@@ -1,0 +1,6 @@
+{
+  "name": "AI Smart Day Planner — Singapore",
+  "description": "Autonomous AI Day Planner for Singapore powered by real-time public data, weather, transport, location, budget optimization, and senior-friendly design.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

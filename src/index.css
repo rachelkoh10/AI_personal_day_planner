@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Accessibility Text Size Classes */
+body.text-size-large {
+  font-size: 1.125rem; /* 18px */
+}
+body.text-size-extra-large {
+  font-size: 1.25rem; /* 20px */
+}
+
+/* High Contrast Mode Overrides */
+body.high-contrast {
+  --tw-border-opacity: 1;
+}
+body.high-contrast button {
+  border-width: 2px !important;
+}
