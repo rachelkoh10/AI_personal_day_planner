@@ -130,10 +130,6 @@ export default function App() {
     setActiveTab('plan');
   };
 
-  const handleStartPlannerWithPreset = async (presetPrefs: UserPreferences, presetName: string) => {
-    await handleGenerate(presetPrefs, presetName);
-  };
-
   const handleSavePlan = (planToSave: TripPlan) => {
     if (!savedPlans.some((p) => p.id === planToSave.id)) {
       setSavedPlans([planToSave, ...savedPlans]);
@@ -169,7 +165,6 @@ export default function App() {
         {activeTab === 'home' && (
           <HomeView
             onStartPlannerWithCategory={handleStartPlannerWithCategory}
-            onStartPlannerWithPreset={handleStartPlannerWithPreset}
             onOpenPlanner={() => setActiveTab('plan')}
             seniorGentleMode={accessibilitySettings.seniorEasyMode}
           />

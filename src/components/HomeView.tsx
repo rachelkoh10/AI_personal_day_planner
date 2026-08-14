@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Utensils, ShoppingBag, Trees, Heart, Users, Landmark, Activity, HelpCircle, HeartHandshake, ShieldCheck, PlayCircle, Clock, MapPin, ArrowRight } from 'lucide-react';
+import { Sparkles, Utensils, ShoppingBag, Trees, Heart, Users, Landmark, Activity, HeartHandshake } from 'lucide-react';
 import { ActivityCategory, UserPreferences } from '../types';
 
 interface Props {
@@ -11,7 +11,6 @@ interface Props {
 
 export const HomeView: React.FC<Props> = ({
   onStartPlannerWithCategory,
-  onStartPlannerWithPreset,
   onOpenPlanner,
   seniorGentleMode,
 }) => {
@@ -84,133 +83,6 @@ export const HomeView: React.FC<Props> = ({
               </button>
             );
           })}
-        </div>
-      </section>
-
-      {/* Professor Demo Presets Section */}
-      <section className="max-w-5xl mx-auto px-4 pt-4">
-        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-6">
-          <div className="flex items-center justify-between flex-wrap gap-2 pb-4 border-b border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold">Professor Demo Scenarios</h2>
-                <p className="text-xs text-slate-400">
-                  Instant 1-click test scenarios demonstrating autonomous agent reasoning & replanning
-                </p>
-              </div>
-            </div>
-            <span className="bg-indigo-950 text-indigo-300 text-xs font-mono font-bold px-3 py-1 rounded-full border border-indigo-800">
-              Agent Telemetry Active
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Scenario 1: Senior Citizen */}
-            <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 hover:border-amber-500 transition-all flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">👴</span>
-                  <h3 className="font-bold text-white text-base">Senior Citizen Scenario</h3>
-                </div>
-                <div className="text-xs text-slate-300 space-y-1">
-                  <p className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-amber-400" /> Toa Payoh Lorong 1</p>
-                  <p className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-amber-400" /> 4 Hours • S$40 Budget</p>
-                  <p className="text-amber-300 font-semibold mt-1">Gentle Mode: Short walk, hawker lunch, town park rest, kopi break.</p>
-                </div>
-              </div>
-              <button
-                onClick={() =>
-                  onStartPlannerWithPreset?.(
-                    {
-                      location: 'Toa Payoh & Novena',
-                      timeAvailable: '3h',
-                      budgetTier: 'under_50',
-                      categories: ['food', 'relaxing', 'nature'],
-                      walkingComfort: 'very_little',
-                      groupType: 'seniors',
-                      seniorGentleMode: true,
-                    },
-                    'Senior Citizen Gentle Day in Toa Payoh'
-                  )
-                }
-                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <PlayCircle className="w-4 h-4" /> Run Senior Demo
-              </button>
-            </div>
-
-            {/* Scenario 2: Tourist */}
-            <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 hover:border-teal-500 transition-all flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🇸🇬</span>
-                  <h3 className="font-bold text-white text-base">Tourist Heritage Crawl</h3>
-                </div>
-                <div className="text-xs text-slate-300 space-y-1">
-                  <p className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-teal-400" /> Bugis & Kampong Glam</p>
-                  <p className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-teal-400" /> 5 Hours • S$60 Budget</p>
-                  <p className="text-teal-300 font-semibold mt-1">Culture & Food: Sultan Mosque, Murtabak, Haji Lane, Marina Bay sunset.</p>
-                </div>
-              </div>
-              <button
-                onClick={() =>
-                  onStartPlannerWithPreset?.(
-                    {
-                      location: 'Bugis & Kampong Glam',
-                      timeAvailable: 'half_day',
-                      budgetTier: 'under_100',
-                      categories: ['culture', 'food', 'shopping'],
-                      walkingComfort: 'some',
-                      groupType: 'partner',
-                      seniorGentleMode: false,
-                    },
-                    'Explore Bugis & Kampong Glam'
-                  )
-                }
-                className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <PlayCircle className="w-4 h-4" /> Run Tourist Demo
-              </button>
-            </div>
-
-            {/* Scenario 3: Autonomous Weather Re-plan */}
-            <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 hover:border-indigo-500 transition-all flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">☔</span>
-                  <h3 className="font-bold text-white text-base">Rain Weather Re-plan</h3>
-                </div>
-                <div className="text-xs text-slate-300 space-y-1">
-                  <p className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-indigo-400" /> Marina Bay Gardens</p>
-                  <p className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-indigo-400" /> Live Weather Re-evaluation</p>
-                  <p className="text-indigo-300 font-semibold mt-1">Autonomous Agent detects rain & swaps outdoor walk to Flower Dome.</p>
-                </div>
-              </div>
-              <button
-                onClick={() =>
-                  onStartPlannerWithPreset?.(
-                    {
-                      location: 'Marina Bay & Downtown',
-                      timeAvailable: '3h',
-                      budgetTier: 'under_50',
-                      categories: ['nature', 'culture', 'food'],
-                      walkingComfort: 'some',
-                      groupType: 'friends',
-                      seniorGentleMode: false,
-                      indoorPreference: true,
-                    },
-                    'Autonomous Weather Re-Plan Demo'
-                  )
-                }
-                className="w-full py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <PlayCircle className="w-4 h-4" /> Run Rain Re-Plan
-              </button>
-            </div>
-          </div>
         </div>
       </section>
 
