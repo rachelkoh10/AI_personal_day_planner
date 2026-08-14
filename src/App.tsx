@@ -11,6 +11,7 @@ import { AdminDashboardView } from './components/AdminDashboardView';
 import { AccessibilityPanel } from './components/AccessibilityPanel';
 import { SubscriptionModal } from './components/SubscriptionModal';
 import { AgentTelemetryDrawer } from './components/AgentTelemetryDrawer';
+import { DisqusThread } from './components/DisqusThread';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'plan' | 'my-plans' | 'explore' | 'admin'>('home');
@@ -214,6 +215,9 @@ export default function App() {
         {activeTab === 'explore' && <ExploreView />}
 
         {activeTab === 'admin' && <AdminDashboardView />}
+
+        {/* Disqus Discussion Forum Embedded at Bottom */}
+        <DisqusThread />
       </main>
 
       {/* Accessibility Settings Modal */}
