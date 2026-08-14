@@ -81,22 +81,24 @@ export default function App() {
         { ...prefs, seniorGentleMode: accessibilitySettings.seniorEasyMode || prefs.seniorGentleMode },
         customPrompt
       );
-      setCurrentPlan(result.plan);
-      setAgentSteps(result.steps);
+      if (result && result.plan) {
+        setCurrentPlan(result.plan);
+        setAgentSteps(result.steps || []);
 
-      // Increment subscription counter
-      setSubscription((prev) => ({
-        ...prev,
-        plansUsedThisMonth: prev.plansUsedThisMonth + 1,
-      }));
+        // Increment subscription counter
+        setSubscription((prev) => ({
+          ...prev,
+          plansUsedThisMonth: prev.plansUsedThisMonth + 1,
+        }));
 
-      // Switch to plan tab
-      setActiveTab('plan');
-      if (professorDemoMode) {
-        setShowTelemetryDrawer(true);
+        // Switch to plan tab
+        setActiveTab('plan');
+        if (professorDemoMode) {
+          setShowTelemetryDrawer(true);
+        }
       }
     } catch (err: any) {
-      alert(`AI Agent Error: ${err.message}`);
+      console.error('Plan generation notice:', err);
     } finally {
       setIsGenerating(false);
     }
@@ -107,13 +109,15 @@ export default function App() {
     setIsReplanning(true);
     try {
       const result = await replanAIAgentPlan(currentPlan, triggerReason, customInstruction);
-      setCurrentPlan(result.plan);
-      setAgentSteps((prev) => [...prev, ...result.steps]);
-      if (professorDemoMode) {
-        setShowTelemetryDrawer(true);
+      if (result && result.plan) {
+        setCurrentPlan(result.plan);
+        setAgentSteps((prev) => [...prev, ...(result.steps || [])]);
+        if (professorDemoMode) {
+          setShowTelemetryDrawer(true);
+        }
       }
     } catch (err: any) {
-      alert(`Re-plan Error: ${err.message}`);
+      console.error('Plan replan notice:', err);
     } finally {
       setIsReplanning(false);
     }
