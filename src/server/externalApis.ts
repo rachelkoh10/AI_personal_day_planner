@@ -2,9 +2,6 @@ import { Router, Request, Response } from 'express';
 
 export const externalApiRouter = Router();
 
-const LTA_KEY = process.env.LTA_ACCOUNT_KEY || '5891Z3kIS62dL4Zqx/ESxA==';
-const GOOGLE_API_KEY = process.env.GEMINI_API_KEY || '';
-
 // Generic helper to proxy JSON GET requests
 async function proxyGet(url: string, headers: Record<string, string> = {}, res: Response) {
   try {
@@ -17,7 +14,7 @@ async function proxyGet(url: string, headers: Record<string, string> = {}, res: 
 }
 
 // ==========================================
-// 1. Weather & Environment (data.gov.sg v2)
+// 1. Weather & Environment (data.gov.sg v2) - Open Government Data (No Key Required)
 // ==========================================
 const GOV_V2 = 'https://api-open.data.gov.sg/v2/real-time/api';
 const v2Endpoints = [
@@ -38,7 +35,7 @@ for (const ep of v2Endpoints) {
 }
 
 // ==========================================
-// 2. Carparks & Taxis (data.gov.sg v1)
+// 2. Carparks & Taxis (data.gov.sg v1) - Open Government Data
 // ==========================================
 externalApiRouter.get('/gov/v1/carpark-availability', (req, res) =>
   proxyGet('https://api.data.gov.sg/v1/transport/carpark-availability', {}, res)
@@ -55,18 +52,28 @@ const LTA_BASE = 'https://datamall2.mytransport.sg/ltaodataservice';
 externalApiRouter.get('/lta/bus-arrival', (req, res) => {
   const code = (req.query.BusStopCode as string) || '83139';
   const serviceNo = req.query.ServiceNo ? `&ServiceNo=${req.query.ServiceNo}` : '';
-  proxyGet(`${LTA_BASE}/v3/BusArrival?BusStopCode=${code}${serviceNo}`, { AccountKey: LTA_KEY }, res);
+  const accountKey = (req.headers['accountkey'] as string) || '';
+  proxyGet(
+    `${LTA_BASE}/v3/BusArrival?BusStopCode=${code}${serviceNo}`,
+    accountKey ? { AccountKey: accountKey } : {},
+    res
+  );
 });
 
-externalApiRouter.get('/lta/carpark-availability', (req, res) =>
-  proxyGet(`${LTA_BASE}/CarParkAvailabilityv2`, { AccountKey: LTA_KEY }, res)
-);
-externalApiRouter.get('/lta/traffic-incidents', (req, res) =>
-  proxyGet(`${LTA_BASE}/TrafficIncidents`, { AccountKey: LTA_KEY }, res)
-);
-externalApiRouter.get('/lta/train-alerts', (req, res) =>
-  proxyGet(`${LTA_BASE}/TrainServiceAlerts`, { AccountKey: LTA_KEY }, res)
-);
+externalApiRouter.get('/lta/carpark-availability', (req, res) => {
+  const accountKey = (req.headers['accountkey'] as string) || '';
+  proxyGet(`${LTA_BASE}/CarParkAvailabilityv2`, accountKey ? { AccountKey: accountKey } : {}, res);
+});
+
+externalApiRouter.get('/lta/traffic-incidents', (req, res) => {
+  const accountKey = (req.headers['accountkey'] as string) || '';
+  proxyGet(`${LTA_BASE}/TrafficIncidents`, accountKey ? { AccountKey: accountKey } : {}, res);
+});
+
+externalApiRouter.get('/lta/train-alerts', (req, res) => {
+  const accountKey = (req.headers['accountkey'] as string) || '';
+  proxyGet(`${LTA_BASE}/TrainServiceAlerts`, accountKey ? { AccountKey: accountKey } : {}, res);
+});
 
 // ==========================================
 // 4. OneMap Services
@@ -100,7 +107,7 @@ externalApiRouter.get('/onemap/revgeocode', (req, res) => {
   const token = req.headers.authorization || '';
   proxyGet(
     `https://www.onemap.gov.sg/api/public/revgeocode?location=${location}&buffer=40&addressType=All`,
-    { Authorization: token },
+    token ? { Authorization: token } : {},
     res
   );
 });
@@ -112,7 +119,7 @@ externalApiRouter.get('/onemap/route', (req, res) => {
   const token = req.headers.authorization || '';
   proxyGet(
     `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${start}&end=${end}&routeType=${type}`,
-    { Authorization: token },
+    token ? { Authorization: token } : {},
     res
   );
 });
@@ -123,7 +130,7 @@ externalApiRouter.get('/onemap/route', (req, res) => {
 const URA_BASE = 'https://eservice.ura.gov.sg/uraDataService';
 
 externalApiRouter.post('/ura/token', async (req, res) => {
-  const accessKey = (req.headers['accesskey'] as string) || process.env.URA_ACCESS_KEY || '';
+  const accessKey = (req.headers['accesskey'] as string) || '';
   try {
     const response = await fetch(`${URA_BASE}/insertNewToken/v1`, {
       method: 'POST',
@@ -139,85 +146,13 @@ externalApiRouter.post('/ura/token', async (req, res) => {
 externalApiRouter.get('/ura/service', (req, res) => {
   const service = (req.query.service as string) || 'Car_Park_Availability';
   const batch = req.query.batch ? `&batch=${req.query.batch}` : '';
-  const accessKey = (req.headers['accesskey'] as string) || process.env.URA_ACCESS_KEY || '';
+  const accessKey = (req.headers['accesskey'] as string) || '';
   const token = (req.headers['token'] as string) || '';
 
   proxyGet(
     `${URA_BASE}/invokeUraDS/v1?service=${service}${batch}`,
-    { AccessKey: accessKey, Token: token },
+    accessKey ? { AccessKey: accessKey, Token: token } : {},
     res
   );
 });
 
-// ==========================================
-// 6. Direct Gemini REST Generation
-// ==========================================
-externalApiRouter.post('/google/gemini/generate', async (req, res) => {
-  const key = (req.headers['x-goog-api-key'] as string) || GOOGLE_API_KEY;
-  try {
-    const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': key,
-        },
-        body: JSON.stringify(req.body),
-      }
-    );
-    const data = await response.json();
-    res.json(data);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ==========================================
-// 7. YouTube Data API v3
-// ==========================================
-const YT_BASE = 'https://www.googleapis.com/youtube/v3';
-
-externalApiRouter.get('/youtube/videos', (req, res) => {
-  const id = (req.query.id as string) || '';
-  const key = (req.query.key as string) || GOOGLE_API_KEY;
-  proxyGet(`${YT_BASE}/videos?part=snippet,statistics&id=${id}&key=${key}`, {}, res);
-});
-
-externalApiRouter.get('/youtube/channels', (req, res) => {
-  const handle = (req.query.forHandle as string) || '';
-  const key = (req.query.key as string) || GOOGLE_API_KEY;
-  proxyGet(`${YT_BASE}/channels?part=snippet,statistics&forHandle=${handle}&key=${key}`, {}, res);
-});
-
-externalApiRouter.get('/youtube/playlistItems', (req, res) => {
-  const playlistId = (req.query.playlistId as string) || '';
-  const key = (req.query.key as string) || GOOGLE_API_KEY;
-  proxyGet(`${YT_BASE}/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${key}`, {}, res);
-});
-
-externalApiRouter.get('/youtube/commentThreads', (req, res) => {
-  const videoId = (req.query.videoId as string) || '';
-  const key = (req.query.key as string) || GOOGLE_API_KEY;
-  proxyGet(`${YT_BASE}/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&key=${key}`, {}, res);
-});
-
-externalApiRouter.get('/youtube/search', (req, res) => {
-  const q = encodeURIComponent((req.query.q as string) || '');
-  const key = (req.query.key as string) || GOOGLE_API_KEY;
-  proxyGet(`${YT_BASE}/search?part=snippet&q=${q}&type=video&key=${key}`, {}, res);
-});
-
-// ==========================================
-// 8. Google Books & Fonts APIs
-// ==========================================
-externalApiRouter.get('/google/books', (req, res) => {
-  const q = encodeURIComponent((req.query.q as string) || 'singapore travel');
-  const key = (req.query.key as string) || GOOGLE_API_KEY;
-  proxyGet(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=10&key=${key}`, {}, res);
-});
-
-externalApiRouter.get('/google/fonts', (req, res) => {
-  const key = (req.query.key as string) || GOOGLE_API_KEY;
-  proxyGet(`https://www.googleapis.com/webfonts/v1/webfonts?sort=popularity&key=${key}`, {}, res);
-});
