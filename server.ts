@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
 import { SINGAPORE_PLACES, MOCK_DATA_SOURCES } from './src/data/singaporeData.js';
 import { AgentStep, TripPlan, UserPreferences } from './src/types.js';
+import { externalApiRouter } from './src/server/externalApis.js';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+app.use('/api', externalApiRouter);
 
 // Initialize Gemini Client server-side
 const apiKey = process.env.GEMINI_API_KEY || '';
